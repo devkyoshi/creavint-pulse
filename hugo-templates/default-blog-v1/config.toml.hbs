@@ -1,0 +1,32 @@
+baseURL = "{{site.baseUrl}}"
+languageCode = "en-us"
+title = "{{site.name}}"
+enableRobotsTXT = true
+
+# Sitemap output (AdSense + GSC prerequisite)
+[sitemap]
+  changefreq = "daily"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+# RSS feed output
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+
+[params]
+  description = "{{theme.description}}"
+  primaryColor = "{{theme.primaryColor}}"
+  logoUrl = "{{theme.logoUrl}}"
+  niche = "{{site.niche}}"
+  gtmContainerId = "{{site.gtmContainerId}}"
+  adsenseClientId = "{{site.adsenseClientId}}"
+  titlePattern = "{{site.titlePattern}}"
+  defaultSchemaType = "{{site.defaultSchemaType}}"
+  showAuthorBox = {{#if theme.showAuthorBox}}true{{else}}false{{/if}}
+
+[markup.goldmark.renderer]
+  unsafe = false
+
+[taxonomies]
+  tag = "tags"

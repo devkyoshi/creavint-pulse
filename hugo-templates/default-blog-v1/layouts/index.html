@@ -1,0 +1,17 @@
+{{ define "main" }}
+<section class="hero">
+  <h1>{{ .Site.Title }}</h1>
+  <p>{{ .Site.Params.description }}</p>
+</section>
+<section class="latest">
+  <h2>Latest Articles</h2>
+  <ul class="post-list">
+    {{ range first 12 (where .Site.RegularPages "Section" "posts").ByDate.Reverse }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <p>{{ .Description }}</p>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

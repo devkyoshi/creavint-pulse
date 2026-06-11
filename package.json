@@ -1,0 +1,20 @@
+{
+  "name": "creavint-pulse",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Creavint Pulse — automated content monetization platform (internal staff tool)",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @creavint/backend dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:migrate": "pnpm --filter @creavint/backend db:migrate",
+    "db:seed": "pnpm --filter @creavint/backend db:seed"
+  },
+  "devDependencies": {
+    "shadcn": "^4.11.0"
+  }
+}

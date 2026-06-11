@@ -1,2 +1,14 @@
 CLAUDE.md
 docs
+
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+.turbo/
+coverage/
+
+# Git content store — separate repo (GIT_REPO_URL), never tracked here
+sites/

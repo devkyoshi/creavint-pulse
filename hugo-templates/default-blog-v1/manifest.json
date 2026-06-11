@@ -1,0 +1,12 @@
+{
+  "id": "default-blog-v1",
+  "name": "Default Blog",
+  "version": "1.0.0",
+  "parameters": [
+    { "key": "primaryColor", "label": "Primary color", "type": "color", "default": "#1a73e8" },
+    { "key": "logoUrl", "label": "Logo URL", "type": "url", "required": false },
+    { "key": "description", "label": "Site tagline", "type": "string", "required": true },
+    { "key": "showAuthorBox", "label": "Show author box on articles", "type": "boolean", "default": true }
+  ],
+  "requiredPages": ["about", "contact", "privacy", "terms", "editorial-policy", "author"]
+}

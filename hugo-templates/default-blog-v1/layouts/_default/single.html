@@ -1,0 +1,18 @@
+{{ define "main" }}
+<article>
+  <h1>{{ .Title }}</h1>
+  <p class="meta">Published {{ .Date.Format "January 2, 2006" }}</p>
+
+  {{ partial "adsense.html" (dict "slot" "top" "ctx" .) }}
+
+  {{ .Content }}
+
+  {{ partial "adsense.html" (dict "slot" "bottom" "ctx" .) }}
+
+  {{ if .Site.Params.showAuthorBox }}
+  <aside class="author-box">
+    <p>Written by the <a href="/author/">{{ .Site.Title }} editorial team</a>.</p>
+  </aside>
+  {{ end }}
+</article>
+{{ end }}

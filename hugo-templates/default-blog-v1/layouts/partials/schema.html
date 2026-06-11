@@ -1,0 +1,15 @@
+{{ if .Params.jsonld }}
+{{ range .Params.jsonld }}
+<script type="application/ld+json">{{ . | jsonify | safeJS }}</script>
+{{ end }}
+{{ else if .IsPage }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "{{ .Site.Params.defaultSchemaType | default "Article" }}",
+  "headline": {{ .Title | jsonify }},
+  "datePublished": {{ .Date.Format "2006-01-02" | jsonify }},
+  "publisher": { "@type": "Organization", "name": {{ .Site.Title | jsonify }} }
+}
+</script>
+{{ end }}
