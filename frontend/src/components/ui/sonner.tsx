@@ -1,33 +1,35 @@
-import {
-  CircleCheckIcon,
-  InfoIcon,
-  Loader2Icon,
-  OctagonXIcon,
-  TriangleAlertIcon,
-} from "lucide-react"
-import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
-const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme()
-
+function Toaster({ ...props }: ToasterProps) {
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
-      className="toaster group"
-      icons={{
-        success: <CircleCheckIcon className="size-4" />,
-        info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
-        loading: <Loader2Icon className="size-4 animate-spin" />,
+      className="toaster"
+      toastOptions={{
+        classNames: {
+          toast: "bg-surface-overlay border border-border text-text-primary shadow-lg rounded-[--radius-md] text-sm",
+          description: "text-text-secondary",
+          actionButton: "bg-accent text-text-on-primary",
+          cancelButton: "bg-surface-raised text-text-secondary",
+          error: "text-destructive-text",
+          success: "text-success-text",
+          warning: "text-warning-text",
+        },
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
+          "--normal-bg": "var(--surface-overlay)",
+          "--normal-text": "var(--text-primary)",
           "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--border-radius": "var(--radius-md)",
+          "--success-bg": "var(--success-subtle)",
+          "--success-text": "var(--success-text)",
+          "--success-border": "var(--success)",
+          "--error-bg": "var(--destructive-subtle)",
+          "--error-text": "var(--destructive-text)",
+          "--error-border": "var(--destructive)",
+          "--warning-bg": "var(--warning-subtle)",
+          "--warning-text": "var(--warning-text)",
+          "--warning-border": "var(--warning)",
         } as React.CSSProperties
       }
       {...props}

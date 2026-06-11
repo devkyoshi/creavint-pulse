@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { OctagonAlert, Plus, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -33,7 +33,7 @@ function TemplatesTab() {
   const registerMutation = useMutation({
     mutationFn: (templateDir: string) => api.admin.registerTemplate(templateDir),
     onSuccess: () => {
-      toast.success("Template registered — lint passed");
+      toast.success("Template registered â€” lint passed");
       queryClient.invalidateQueries({ queryKey: ["admin", "templates"] });
       setDir("");
     },
@@ -66,7 +66,7 @@ function TemplatesTab() {
       <Card>
         <CardContent className="p-0">
           {(data ?? []).length === 0 ? (
-            <p className="px-5 py-10 text-center text-sm text-muted-foreground">No templates registered.</p>
+            <p className="px-5 py-10 text-center text-sm text-text-secondary">No templates registered.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -84,14 +84,14 @@ function TemplatesTab() {
                     <TableCell className="font-medium">{t.name}</TableCell>
                     <TableCell className="font-mono text-xs">{t.version}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className={cn(t.lintPassed && "bg-success/10 text-success")}>
+                      <Badge variant="secondary" className={cn(t.lintPassed && "bg-success-subtle text-success-text")}>
                         {t.lintPassed ? "passed" : "failed"}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
+                    <TableCell className="text-xs text-text-secondary">
                       {t.manifestJson.parameters.map((p) => p.key).join(", ")}
                     </TableCell>
-                    <TableCell className="text-right text-xs text-muted-foreground">{dateShort(t.createdAt)}</TableCell>
+                    <TableCell className="text-right text-xs text-text-secondary">{dateShort(t.createdAt)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -143,7 +143,7 @@ function DomainsTab() {
       <Card>
         <CardContent className="p-0">
           {(data ?? []).length === 0 ? (
-            <p className="px-5 py-10 text-center text-sm text-muted-foreground">Domain pool is empty.</p>
+            <p className="px-5 py-10 text-center text-sm text-text-secondary">Domain pool is empty.</p>
           ) : (
             <Table>
               <TableHeader>
@@ -158,15 +158,15 @@ function DomainsTab() {
                 {(data ?? []).map((d) => (
                   <TableRow key={d.id}>
                     <TableCell className="font-medium">{d.fqdn}</TableCell>
-                    <TableCell className="text-muted-foreground">{d.registrar ?? "—"}</TableCell>
+                    <TableCell className="text-text-secondary">{d.registrar ?? "â€”"}</TableCell>
                     <TableCell>{d.isAged ? "yes" : "no"}</TableCell>
                     <TableCell className="text-right">
                       <Badge
                         variant="secondary"
                         className={cn(
                           "capitalize",
-                          d.status === "available" && "bg-success/10 text-success",
-                          d.status === "expired" && "bg-destructive/10 text-destructive",
+                          d.status === "available" && "bg-success-subtle text-success-text",
+                          d.status === "expired" && "bg-destructive-subtle text-destructive-text",
                         )}
                       >
                         {d.status}
@@ -186,21 +186,22 @@ function DomainsTab() {
             <DialogTitle>Add domain to pool</DialogTitle>
             <DialogDescription>Aged domains require a recorded history check (pool hygiene).</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-1">
+          <div className="space-y-5 py-2">
             <div className="space-y-1.5">
               <Label>FQDN</Label>
               <Input value={fqdn} onChange={(e) => setFqdn(e.target.value)} placeholder="example.com" className="font-mono" />
+              <p className="text-xs text-text-tertiary">Fully-qualified domain name. Must be lowercase.</p>
             </div>
             <div className="space-y-1.5">
-              <Label>Registrar (optional)</Label>
-              <Input value={registrar} onChange={(e) => setRegistrar(e.target.value)} placeholder="namecheap" />
+              <Label>Registrar <span className="text-text-tertiary font-normal">(optional)</span></Label>
+              <Input value={registrar} onChange={(e) => setRegistrar(e.target.value)} placeholder="namecheap, cloudflare…" />
             </div>
-            <div className="flex items-center justify-between rounded-md border px-4 py-3">
+            <div className="flex items-start justify-between rounded-[--radius] border border-border bg-surface-raised px-4 py-3.5 gap-4">
               <div>
-                <p className="text-sm font-medium">Aged domain</p>
-                <p className="text-xs text-muted-foreground">Previously registered domain with history.</p>
+                <p className="text-sm font-medium text-text-primary">Aged domain</p>
+                <p className="text-xs text-text-secondary mt-0.5">Previously registered domain with backlink history. Requires a history check note.</p>
               </div>
-              <Switch checked={isAged} onCheckedChange={setIsAged} />
+              <Switch checked={isAged} onCheckedChange={setIsAged} className="mt-0.5 shrink-0" />
             </div>
             {isAged && (
               <div className="space-y-1.5">
@@ -210,6 +211,7 @@ function DomainsTab() {
                   onChange={(e) => setHistoryNote(e.target.value)}
                   placeholder="Wayback clean, no spam history, DR 12…"
                 />
+                <p className="text-xs text-text-tertiary">Document your Wayback Machine and spam check findings for the audit trail.</p>
               </div>
             )}
           </div>
@@ -279,7 +281,7 @@ function UsersTab() {
                 <TableRow key={u.id}>
                   <TableCell>
                     <p className="font-medium">{u.name}</p>
-                    <p className="text-xs text-muted-foreground">{u.email}</p>
+                    <p className="text-xs text-text-secondary">{u.email}</p>
                   </TableCell>
                   <TableCell>
                     <Select value={u.role} onValueChange={(role) => updateMutation.mutate({ id: u.id, payload: { role } })}>
@@ -322,14 +324,16 @@ function UsersTab() {
             <DialogTitle>Add user</DialogTitle>
             <DialogDescription>Staff account with role-based access.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-1">
-            <div className="space-y-1.5">
-              <Label>Name</Label>
-              <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Email</Label>
-              <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+          <div className="space-y-5 py-2">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label>Full name</Label>
+                <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Jane Smith" />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Work email</Label>
+                <Input type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="jane@company.com" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label>Role</Label>
@@ -345,6 +349,9 @@ function UsersTab() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-text-tertiary">
+                Admin — full access. Site manager — create/configure sites. Content reviewer — review queue only. Analyst — read-only.
+              </p>
             </div>
             <div className="space-y-1.5">
               <Label>Temporary password</Label>
@@ -352,8 +359,9 @@ function UsersTab() {
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                placeholder="••••••••"
               />
-              <p className="text-xs text-muted-foreground">Minimum 8 characters.</p>
+              <p className="text-xs text-text-tertiary">Minimum 8 characters. The user should change this on first sign-in.</p>
             </div>
           </div>
           <DialogFooter>
@@ -381,7 +389,7 @@ function KillSwitchTab() {
   const mutation = useMutation({
     mutationFn: (action: "pause" | "resume") => api.admin.setKillSwitch(action),
     onSuccess: (_r, action) => {
-      toast.success(action === "pause" ? "Network paused — all queues stopped" : "Network resumed");
+      toast.success(action === "pause" ? "Network paused â€” all queues stopped" : "Network resumed");
       queryClient.invalidateQueries({ queryKey: ["kill-switch"] });
       setConfirmOpen(false);
     },
@@ -398,7 +406,7 @@ function KillSwitchTab() {
           Network kill switch
         </CardTitle>
         <CardDescription>
-          Pauses every queue — provisioning, content, SEO, and analytics. Running jobs finish; nothing new starts.
+          Pauses every queue â€” provisioning, content, SEO, and analytics. Running jobs finish; nothing new starts.
           Use when Google flags the network or costs spike.
         </CardDescription>
       </CardHeader>
@@ -406,7 +414,7 @@ function KillSwitchTab() {
         <div>
           <p className="text-sm font-medium">{active ? "Network is PAUSED" : "Network is running"}</p>
           {active && data?.since && (
-            <p className="text-xs text-muted-foreground">since {new Date(data.since).toLocaleString()}</p>
+            <p className="text-xs text-text-secondary">since {new Date(data.since).toLocaleString()}</p>
           )}
         </div>
         {active ? (
@@ -469,3 +477,4 @@ export function AdminPage() {
     </div>
   );
 }
+

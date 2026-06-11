@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import ReactMarkdown from "react-markdown";
@@ -41,14 +41,14 @@ function ScoreRow({ label, pass, detail }: { label: string; pass: boolean; detai
       <span
         className={cn(
           "mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full",
-          pass ? "bg-success/15 text-success" : "bg-destructive/10 text-destructive",
+          pass ? "bg-success-subtle text-success-text" : "bg-destructive-subtle text-destructive-text",
         )}
       >
         {pass ? <Check className="size-3" /> : <X className="size-3" />}
       </span>
       <div>
         <p className="text-sm leading-tight font-medium">{label}</p>
-        <p className="text-xs text-muted-foreground">{detail}</p>
+        <p className="text-xs text-text-secondary">{detail}</p>
       </div>
     </li>
   );
@@ -60,7 +60,7 @@ function QualityPanel({ scores }: { scores: QualityScores }) {
       <ScoreRow
         label="Duplication"
         pass={scores.duplication.pass}
-        detail={`max similarity ${scores.duplication.maxSimilarity} (fail ≥ 0.85)`}
+        detail={`max similarity ${scores.duplication.maxSimilarity} (fail â‰¥ 0.85)`}
       />
       <ScoreRow
         label="Readability"
@@ -84,7 +84,7 @@ function QualityPanel({ scores }: { scores: QualityScores }) {
       <ScoreRow
         label={`Critic (${scores.critic.source})`}
         pass={scores.critic.pass}
-        detail={`${scores.critic.score}/100${scores.critic.issues.length > 0 ? ` — ${scores.critic.issues.join("; ")}` : ""}`}
+        detail={`${scores.critic.score}/100${scores.critic.issues.length > 0 ? ` â€” ${scores.critic.issues.join("; ")}` : ""}`}
       />
     </ul>
   );
@@ -110,7 +110,7 @@ export function ReviewDetailPage() {
       api.review.submit(jobId, vars.decision, vars.reasons, vars.editedContent),
     onSuccess: (_res, vars) => {
       toast.success(
-        vars.decision === "reject" ? "Article rejected" : "Approved — publish stage enqueued",
+        vars.decision === "reject" ? "Article rejected" : "Approved â€” publish stage enqueued",
       );
       queryClient.invalidateQueries({ queryKey: ["review-queue"] });
       navigate("/review");
@@ -138,7 +138,7 @@ export function ReviewDetailPage() {
     <div className="space-y-6">
       <PageHeader
         title={job.title ?? "Untitled draft"}
-        description={`Target keyword: ${brief.outlineJson.targetKeyword} · intent: ${brief.outlineJson.intent}`}
+        description={`Target keyword: ${brief.outlineJson.targetKeyword} Â· intent: ${brief.outlineJson.intent}`}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="ghost" size="sm" asChild>
@@ -190,10 +190,10 @@ export function ReviewDetailPage() {
               {job.qualityScoresJson ? (
                 <QualityPanel scores={job.qualityScoresJson} />
               ) : (
-                <p className="text-sm text-muted-foreground">No quality scores recorded.</p>
+                <p className="text-sm text-text-secondary">No quality scores recorded.</p>
               )}
               {job.critique && (
-                <p className="mt-3 rounded-md bg-warning/10 px-3 py-2 text-xs text-warning">{job.critique}</p>
+                <p className="mt-3 rounded-md bg-warning-subtle px-3 py-2 text-xs text-warning-text">{job.critique}</p>
               )}
             </CardContent>
           </Card>
@@ -204,7 +204,7 @@ export function ReviewDetailPage() {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase">Keywords</p>
+                <p className="text-xs font-medium text-text-secondary">Keywords</p>
                 <div className="mt-1 flex flex-wrap gap-1.5">
                   {brief.outlineJson.keywords.map((k) => (
                     <Badge key={k} variant="secondary" className="font-normal">
@@ -215,16 +215,16 @@ export function ReviewDetailPage() {
               </div>
               {brief.internalLinkCandidatesJson.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase">Internal link candidates</p>
-                  <ul className="mt-1 list-inside list-disc text-sm text-muted-foreground">
+                  <p className="text-xs font-medium text-text-secondary">Internal link candidates</p>
+                  <ul className="mt-1 list-inside list-disc text-sm text-text-secondary">
                     {brief.internalLinkCandidatesJson.map((l) => (
                       <li key={l.slug}>{l.title}</li>
                     ))}
                   </ul>
                 </div>
               )}
-              <div className="text-xs text-muted-foreground">
-                Kind: {brief.kind} · model: {job.modelUsed ?? "—"} · cost: ${job.tokenCostUsd.toFixed(3)}
+              <div className="text-xs text-text-secondary">
+                Kind: {brief.kind} Â· model: {job.modelUsed ?? "â€”"} Â· cost: ${job.tokenCostUsd.toFixed(3)}
               </div>
             </CardContent>
           </Card>
@@ -239,8 +239,8 @@ export function ReviewDetailPage() {
                   {reviews.map((r) => (
                     <li key={r.id} className="flex items-center justify-between">
                       <span className="capitalize">{r.decision}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {(r.reasonsJson ?? []).join(", ") || "—"}
+                      <span className="text-xs text-text-secondary">
+                        {(r.reasonsJson ?? []).join(", ") || "â€”"}
                       </span>
                     </li>
                   ))}
@@ -264,7 +264,7 @@ export function ReviewDetailPage() {
               />
             ) : (
               <ScrollArea className="h-[36rem] pr-4">
-                <article className="prose-sm max-w-none space-y-3 text-sm leading-relaxed [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mt-5 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:font-semibold [&_a]:text-primary [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground">
+                <article className="prose-sm max-w-none space-y-3 text-sm leading-relaxed [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mt-5 [&_h2]:text-lg [&_h2]:font-semibold [&_h3]:mt-3 [&_h3]:font-semibold [&_a]:text-accent [&_a]:underline [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_blockquote]:border-l-2 [&_blockquote]:pl-3 [&_blockquote]:text-text-secondary">
                   <ReactMarkdown>{body}</ReactMarkdown>
                 </article>
               </ScrollArea>
@@ -278,7 +278,7 @@ export function ReviewDetailPage() {
           <DialogHeader>
             <DialogTitle>Reject article</DialogTitle>
             <DialogDescription>
-              Structured reasons feed back into prompt templates — pick everything that applies.
+              Structured reasons feed back into prompt templates â€” pick everything that applies.
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-2 gap-2.5 py-2">
@@ -311,3 +311,4 @@ export function ReviewDetailPage() {
     </div>
   );
 }
+

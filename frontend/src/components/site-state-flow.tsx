@@ -1,9 +1,8 @@
-import { Check } from "lucide-react";
+import { Fragment } from "react";
 import { cn } from "@/lib/utils";
 import { titleCase } from "@/lib/format";
 import type { SiteState } from "@/lib/types";
 
-/** The monetization happy path; exception states are rendered as a note below. */
 const HAPPY_PATH: SiteState[] = [
   "created",
   "provisioning",
@@ -28,44 +27,39 @@ export function SiteStateFlow({ current }: { current: SiteState }) {
   const isException = EXCEPTION_STATES.includes(current);
 
   return (
-    <div className="space-y-3">
-      <ol className="flex flex-wrap items-center gap-y-3">
+    <div className="space-y-4">
+      <div className="flex items-center">
         {HAPPY_PATH.map((state, i) => {
           const done = currentIdx > i;
           const active = currentIdx === i;
           return (
-            <li key={state} className="flex items-center">
-              <div className="flex items-center gap-1.5">
-                <span
+            <Fragment key={state}>
+              <div className="flex flex-col items-center">
+                <div
                   className={cn(
-                    "flex size-5 items-center justify-center rounded-full border text-[10px] font-semibold",
-                    done && "border-success bg-success text-white",
-                    active && "border-primary bg-primary text-primary-foreground",
-                    !done && !active && "border-border bg-muted text-muted-foreground",
+                    "size-2.5 rounded-full transition-colors",
+                    done  ? "bg-success" :
+                    active ? "bg-accent ring-2 ring-accent/30 ring-offset-1 ring-offset-background" :
+                             "bg-border",
                   )}
-                >
-                  {done ? <Check className="size-3" /> : i + 1}
-                </span>
-                <span
-                  className={cn(
-                    "text-xs whitespace-nowrap",
-                    active ? "font-semibold text-foreground" : done ? "text-foreground" : "text-muted-foreground",
-                  )}
-                >
-                  {titleCase(state)}
-                </span>
+                />
               </div>
               {i < HAPPY_PATH.length - 1 && (
-                <span className={cn("mx-2 h-px w-4 sm:w-6", currentIdx > i ? "bg-success" : "bg-border")} />
+                <div className={cn("flex-1 h-px mx-1", currentIdx > i ? "bg-success" : "bg-border")} />
               )}
-            </li>
+            </Fragment>
           );
         })}
-      </ol>
+      </div>
+      <p className="text-xs text-text-secondary">
+        Current:{" "}
+        <span className={cn("font-medium", isException ? "text-destructive-text" : "text-text-primary")}>
+          {titleCase(current)}
+        </span>
+      </p>
       {isException && (
-        <p className="rounded-md bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive">
-          Site is currently in the <span className="font-semibold">{titleCase(current)}</span> state, outside the
-          standard monetization path.
+        <p className="text-xs text-destructive-text bg-destructive-subtle rounded-[--radius] px-3 py-2">
+          This site is outside the standard monetization path.
         </p>
       )}
     </div>

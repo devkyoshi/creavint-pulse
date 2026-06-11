@@ -12,3 +12,4 @@ coverage/
 
 # Git content store — separate repo (GIT_REPO_URL), never tracked here
 sites/
+.claude/

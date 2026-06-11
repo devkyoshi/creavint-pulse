@@ -22,49 +22,52 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { TourButton } from "@/components/tour";
 import type { Role } from "@/lib/types";
 
 interface NavItem {
   to: string;
   label: string;
   icon: ReactNode;
-  roles?: Role[]; // omit = everyone (admin always passes)
+  roles?: Role[];
+  tourId?: string;
 }
 
-interface NavGroup {
-  label: string;
+interface NavSection {
   items: NavItem[];
+  dividerAfter?: boolean;
 }
 
-const NAV: NavGroup[] = [
+const NAV: NavSection[] = [
   {
-    label: "Overview",
     items: [
-      { to: "/", label: "Dashboard", icon: <LayoutDashboard className="size-4" /> },
-      { to: "/alerts", label: "Alerts", icon: <Bell className="size-4" /> },
+      { to: "/", label: "Dashboard", icon: <LayoutDashboard className="size-3.5" />, tourId: "nav-dashboard" },
+      { to: "/alerts", label: "Alerts", icon: <Bell className="size-3.5" />, tourId: "nav-alerts" },
     ],
+    dividerAfter: true,
   },
   {
-    label: "Operations",
     items: [
-      { to: "/sites", label: "Sites", icon: <Globe className="size-4" /> },
+      { to: "/sites", label: "Sites", icon: <Globe className="size-3.5" />, tourId: "nav-sites" },
       {
         to: "/review",
         label: "Content Desk",
-        icon: <ClipboardCheck className="size-4" />,
+        icon: <ClipboardCheck className="size-3.5" />,
         roles: ["content_reviewer", "site_manager"],
+        tourId: "nav-review",
       },
-      { to: "/keywords", label: "Keywords", icon: <Search className="size-4" /> },
+      { to: "/keywords", label: "Keywords", icon: <Search className="size-3.5" />, tourId: "nav-keywords" },
     ],
+    dividerAfter: true,
   },
   {
-    label: "Administration",
-    items: [{ to: "/admin", label: "Admin", icon: <Settings className="size-4" />, roles: [] }],
+    items: [
+      { to: "/admin", label: "Admin", icon: <Settings className="size-3.5" />, roles: [], tourId: "nav-admin" },
+    ],
   },
 ];
 
@@ -79,23 +82,20 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   if (!user) return null;
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex h-14 items-center gap-2 px-5">
-        <span className="relative flex size-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-40" />
-          <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
-        </span>
-        <span className="text-sm font-semibold tracking-tight">Creavint Pulse</span>
+    <div className="flex h-full flex-col bg-sidebar-bg">
+      {/* Brand */}
+      <div data-tour="sidebar-brand" className="flex h-16 shrink-0 items-center gap-2.5 border-b border-sidebar-border px-5">
+        <span className="size-2 rounded-full bg-sidebar-item-active-text shrink-0" />
+        <span className="text-sm font-semibold text-sidebar-text">Creavint Pulse</span>
       </div>
-      <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
-        {NAV.map((group) => {
-          const visible = group.items.filter((i) => canSee(i, user.role));
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        {NAV.map((section, si) => {
+          const visible = section.items.filter((i) => canSee(i, user.role));
           if (visible.length === 0) return null;
           return (
-            <div key={group.label}>
-              <p className="px-2 pb-1.5 text-[11px] font-medium tracking-wider text-muted-foreground/70 uppercase">
-                {group.label}
-              </p>
+            <div key={si}>
               <ul className="space-y-0.5">
                 {visible.map((item) => (
                   <li key={item.to}>
@@ -103,12 +103,13 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                       to={item.to}
                       end={item.to === "/"}
                       onClick={onNavigate}
+                      data-tour={item.tourId}
                       className={({ isActive }) =>
                         cn(
-                          "flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors",
+                          "flex items-center gap-2.5 rounded-[--radius] px-2.5 py-2 text-sm transition-colors",
                           isActive
-                            ? "bg-accent font-medium text-foreground"
-                            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground",
+                            ? "bg-sidebar-item-active text-sidebar-item-active-text font-medium"
+                            : "text-sidebar-text-muted hover:bg-sidebar-item-hover hover:text-sidebar-text",
                         )
                       }
                     >
@@ -118,12 +119,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                   </li>
                 ))}
               </ul>
+              {section.dividerAfter && (
+                <hr className="my-3 border-sidebar-border" />
+              )}
             </div>
           );
         })}
       </nav>
-      <div className="border-t px-5 py-3">
-        <p className="text-[11px] text-muted-foreground">Internal platform · Phase 1a</p>
+
+      {/* Footer */}
+      <div className="border-t border-sidebar-border px-5 py-3">
+        <p className="text-[11px] text-sidebar-text-muted">Phase 1a · internal</p>
       </div>
     </div>
   );
@@ -140,7 +146,7 @@ function KillSwitchIndicator() {
   });
   if (!data?.active) return null;
   return (
-    <span className="flex items-center gap-1.5 rounded-md bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive">
+    <span className="inline-flex items-center gap-1.5 rounded-[--radius] bg-destructive-subtle px-2.5 py-1 text-xs font-medium text-destructive-text">
       <Activity className="size-3.5" />
       Network paused
     </span>
@@ -162,44 +168,55 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r bg-card lg:block">
+      {/* Desktop sidebar — always dark, theme-independent */}
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 border-r border-sidebar-border lg:block">
         <SidebarNav />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur sm:px-6">
+        {/* Top header */}
+        <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background px-4 sm:px-6">
+          {/* Mobile menu trigger */}
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open navigation">
-                <Menu className="size-5" />
+                <Menu className="size-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0">
+            <SheetContent side="left" className="w-60 p-0 bg-sidebar-bg border-r border-sidebar-border">
               <SheetTitle className="sr-only">Navigation</SheetTitle>
               <SidebarNav onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1.5">
             <KillSwitchIndicator />
-            <ThemeToggle />
+            <div data-tour="tour-trigger">
+              <TourButton />
+            </div>
+            <div data-tour="theme-toggle">
+              <ThemeToggle />
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-accent" aria-label="Account">
+                <button
+                  data-tour="user-menu"
+                  className="flex items-center rounded-[--radius] p-1 hover:bg-surface-raised transition-colors outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                  aria-label="Account"
+                >
                   <Avatar className="size-7">
                     <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel>
-                  <p className="text-sm font-medium">{user?.name}</p>
-                  <p className="text-xs font-normal text-muted-foreground">{user?.email}</p>
-                  <p className="mt-1 text-[11px] font-normal text-muted-foreground capitalize">
+                <div className="px-3 py-2.5">
+                  <p className="text-sm font-medium text-text-primary">{user?.name}</p>
+                  <p className="text-xs text-text-tertiary">{user?.email}</p>
+                  <p className="mt-0.5 text-[11px] text-text-tertiary capitalize">
                     {user?.role.replace("_", " ")}
                   </p>
-                </DropdownMenuLabel>
+                </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={async () => {
@@ -207,7 +224,7 @@ export function AppShell() {
                     navigate("/login");
                   }}
                 >
-                  <LogOut className="size-4" />
+                  <LogOut className="size-3.5" />
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -215,7 +232,7 @@ export function AppShell() {
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 lg:py-8">
+        <main className="mx-auto w-full max-w-7xl flex-1 px-5 py-7 sm:px-8 sm:py-8">
           <Outlet />
         </main>
       </div>
