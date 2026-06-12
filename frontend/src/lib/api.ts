@@ -1,6 +1,7 @@
 import type {
   Alert,
   ArticleReviewPayload,
+  AuditLogEntry,
   AuthUser,
   ChecklistResult,
   CreateSitePayload,
@@ -12,6 +13,7 @@ import type {
   SiteDetail,
   SiteEconomicsDaily,
   SiteListRow,
+  SystemConfigRow,
   Template,
   UserRow,
 } from "./types";
@@ -110,5 +112,16 @@ export const api = {
       patch<UserRow>(`/admin/users/${id}`, payload),
     killSwitch: () => get<{ active: boolean; since: string | null }>("/admin/kill-switch"),
     setKillSwitch: (action: "pause" | "resume") => post<{ active: boolean }>("/admin/kill-switch", { action }),
+    config: () => get<SystemConfigRow[]>("/admin/config"),
+    setConfig: (key: string, value: string | null) =>
+      patch<{ ok: boolean }>(`/admin/config/${key}`, { value }),
+    auditLog: (params?: { entityType?: string; limit?: number }) => {
+      const qs = params
+        ? "?" + new URLSearchParams(Object.fromEntries(
+            Object.entries(params).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)])
+          )).toString()
+        : "";
+      return get<AuditLogEntry[]>(`/admin/audit-log${qs}`);
+    },
   },
 };

@@ -120,7 +120,7 @@ const stepTrustPages: StepFn = async (site) => {
     if (llm.isConfigured()) {
       try {
         const res = await llm.complete({
-          model: config.LLM_CHEAP_MODEL,
+          cheap: true,
           system:
             "You write trust pages for content websites. Output clean markdown only, no frontmatter, no H1 (the title is separate). Be specific and credible, never use placeholder text.",
           prompt: `Write the "${page.title}" page for "${site.name}", a blog about ${site.niche}. Contact email: contact@${site.slug}.com. Keep it 200-400 words.`,

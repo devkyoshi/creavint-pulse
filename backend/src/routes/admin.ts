@@ -8,6 +8,8 @@ import { activateKillSwitch, killSwitchActive, releaseKillSwitch } from "../jobs
 import { registerTemplate } from "../services/templates.ts";
 import { writeAudit } from "../services/audit.ts";
 import { createAlert } from "../services/alerts.ts";
+import { getAllConfig, setConfigValue } from "../services/systemConfig.ts";
+import { refreshLLMProvider } from "../integrations/llm/claude.ts";
 import { ROLES } from "../types.ts";
 
 export default async function adminRoutes(app: FastifyInstance) {
@@ -169,5 +171,19 @@ export default async function adminRoutes(app: FastifyInstance) {
         .limit(q.limit);
     }
     return base.orderBy(desc(auditLog.at)).limit(q.limit);
+  });
+
+  // --- System configuration ---
+
+  app.get("/admin/config", adminOnly, async () => {
+    return getAllConfig();
+  });
+
+  app.patch("/admin/config/:key", adminOnly, async (req, reply) => {
+    const { key } = req.params as { key: string };
+    const { value } = z.object({ value: z.string().nullable() }).parse(req.body);
+    await setConfigValue(key, value, req.user!.id);
+    if (key === "llm_provider") await refreshLLMProvider();
+    return reply.send({ ok: true });
   });
 }

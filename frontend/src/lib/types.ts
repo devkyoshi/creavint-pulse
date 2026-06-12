@@ -280,6 +280,30 @@ export interface UserRow {
   status: "active" | "disabled";
 }
 
+export interface SystemConfigRow {
+  key: string;
+  category: string;
+  label: string;
+  description: string | null;
+  /** Real value for non-secrets; "***SET***" when a secret is configured; null when unset. */
+  value: string | null;
+  isSecret: boolean;
+  updatedAt: string;
+  /** "db" = saved in DB, "env" = falling back to env var, "unset" = not configured */
+  source: "db" | "env" | "unset";
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actorId: string | null;
+  action: string;
+  entityType: string;
+  entityId: string | null;
+  beforeJson: unknown;
+  afterJson: unknown;
+  at: string;
+}
+
 export interface CreateSitePayload {
   name: string;
   niche: string;

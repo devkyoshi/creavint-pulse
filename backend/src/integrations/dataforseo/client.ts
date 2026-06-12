@@ -1,25 +1,32 @@
 import { config } from "../../config.ts";
+import { getActiveProvider, getConfigValue } from "../../services/systemConfig.ts";
 import { getLLM } from "../llm/claude.ts";
 import { parseJsonResponse } from "../llm/provider.ts";
+import { serperConfigured, serperIdeas } from "../serper/client.ts";
 import type { KeywordIdea } from "../../types.ts";
 
-export function dataforseoConfigured(): boolean {
-  return Boolean(config.DATAFORSEO_LOGIN && config.DATAFORSEO_PASSWORD);
+export async function dataforseoConfigured(): Promise<boolean> {
+  const login = await getConfigValue("dataforseo_login");
+  const password = await getConfigValue("dataforseo_password");
+  return Boolean((login ?? config.DATAFORSEO_LOGIN) && (password ?? config.DATAFORSEO_PASSWORD));
 }
 
 /**
- * Keyword ideas for a niche. Prefers DataForSEO; falls back to an LLM
- * estimate when DataForSEO is not configured (pilot/dev), and finally to a
- * deterministic stub so the pipeline never blocks.
+ * Keyword ideas for a niche. Provider waterfall:
+ *   dataforseo (paid) → serper (free tier) → LLM estimate → deterministic stub.
  */
 export async function keywordIdeas(niche: string, limit = 40): Promise<KeywordIdea[]> {
-  if (dataforseoConfigured()) return dataforseoIdeas(niche, limit);
+  const provider = await getActiveProvider("keywords");
+  if (provider === "dataforseo" && await dataforseoConfigured()) return dataforseoIdeas(niche, limit);
+  if (provider === "serper" && await serperConfigured()) return serperIdeas(niche, limit);
   if (getLLM().isConfigured()) return llmIdeas(niche, limit);
   return stubIdeas(niche, limit);
 }
 
 async function dataforseoIdeas(niche: string, limit: number): Promise<KeywordIdea[]> {
-  const auth = Buffer.from(`${config.DATAFORSEO_LOGIN}:${config.DATAFORSEO_PASSWORD}`).toString("base64");
+  const login = (await getConfigValue("dataforseo_login")) ?? config.DATAFORSEO_LOGIN;
+  const password = (await getConfigValue("dataforseo_password")) ?? config.DATAFORSEO_PASSWORD;
+  const auth = Buffer.from(`${login}:${password}`).toString("base64");
   const res = await fetch("https://api.dataforseo.com/v3/dataforseo_labs/google/keyword_ideas/live", {
     method: "POST",
     headers: { Authorization: `Basic ${auth}`, "Content-Type": "application/json" },
@@ -50,7 +57,7 @@ async function dataforseoIdeas(niche: string, limit: number): Promise<KeywordIde
 
 async function llmIdeas(niche: string, limit: number): Promise<KeywordIdea[]> {
   const res = await getLLM().complete({
-    model: config.LLM_CHEAP_MODEL,
+    cheap: true,
     system:
       "You are an SEO keyword research assistant. Respond with JSON only: " +
       '{"keywords":[{"keyword":string,"volume":number,"difficulty":number,"cpc":number}]}. ' +

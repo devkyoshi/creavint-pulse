@@ -45,6 +45,12 @@ const Env = z.object({
   DATAFORSEO_LOGIN: z.string().optional(),
   DATAFORSEO_PASSWORD: z.string().optional(),
 
+  GROQ_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
+  PEXELS_API_KEY: z.string().optional(),
+  UNSPLASH_ACCESS_KEY: z.string().optional(),
+  SERPER_API_KEY: z.string().optional(),
+
   GIT_REPO_URL: z.string().optional(),
   GIT_SERVICE_ACCOUNT_KEY: z.string().optional(),
 

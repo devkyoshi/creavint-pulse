@@ -16,7 +16,7 @@ import { enqueueContentStage } from "../jobs/enqueue.ts";
 import type { CadenceTickPayload, ContentStage, ContentStagePayload } from "../jobs/types.ts";
 import { getLLM } from "../integrations/llm/claude.ts";
 import { embed } from "../integrations/llm/embeddings.ts";
-import { generateImage, replicateConfigured } from "../integrations/replicate/client.ts";
+import { resolveImage } from "../integrations/replicate/client.ts";
 import { gscConfigured, inspectUrl, submitSitemap } from "../integrations/google/gsc.ts";
 import { staticBlogAdapter } from "../adapters/static-blog/index.ts";
 import { runQualityGate, routeReview } from "../services/quality.ts";
@@ -95,7 +95,6 @@ async function stageDraft({ job, brief, site }: JobContext): Promise<void> {
   const res = await getLLM().complete({
     system,
     prompt,
-    model: config.LLM_DEFAULT_MODEL,
     maxTokens: 8000,
   });
 
@@ -192,22 +191,21 @@ async function stageMedia({ job, site }: JobContext): Promise<void> {
   let heroUrl: string | null = null;
   let altText = "";
 
-  if (imagePolicy === "ai_generated" && replicateConfigured()) {
-    heroUrl = await generateImage(
-      `Editorial blog hero image for an article titled "${job.title}" on a ${site.niche} website. Clean, photographic, no text overlay.`,
-    );
+  const imagePrompt = `Editorial blog hero image for an article titled "${job.title}" on a ${site.niche} website. Clean, photographic, no text overlay.`;
+  const resolved = await resolveImage(imagePrompt, imagePolicy);
+  if (resolved) {
+    heroUrl = resolved.url;
     altText = `Illustration: ${job.title}`;
   }
-  // 'stock' policy: no stock provider wired in Phase 1a — publish without hero.
 
-  if (heroUrl) {
+  if (heroUrl && resolved) {
     await db.insert(mediaAssets).values({
       siteId: site.id,
       jobId: job.id,
-      kind: "ai_generated",
+      kind: resolved.kind,
       storageUrl: heroUrl,
       altText,
-      licenseJson: { provider: "replicate", model: "flux-schnell" },
+      licenseJson: resolved.license,
     });
     await db
       .update(contentJobs)

@@ -58,7 +58,7 @@ export async function refreshKeywordBacklog(niche: string): Promise<number> {
 
 async function llmCluster(niche: string, ideas: KeywordIdea[]): Promise<ClusterDraft[]> {
   const res = await getLLM().complete({
-    model: config.LLM_CHEAP_MODEL,
+    cheap: true,
     system:
       "You cluster SEO keywords by search intent. Respond with JSON only: " +
       '{"clusters":[{"label":string,"keywords":string[]}]}. Each cluster covers one article topic.',

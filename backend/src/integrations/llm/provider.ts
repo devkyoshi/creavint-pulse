@@ -10,6 +10,7 @@ export interface CompleteOptions {
   system?: string;
   prompt: string;
   model?: string;
+  cheap?: boolean;
   maxTokens?: number;
   temperature?: number;
 }
@@ -22,7 +23,7 @@ export interface LLMProvider {
 
 export class LLMNotConfiguredError extends Error {
   constructor() {
-    super("no LLM provider configured (set ANTHROPIC_API_KEY)");
+    super("no LLM provider configured (set ANTHROPIC_API_KEY, GROQ_API_KEY, or GEMINI_API_KEY, or configure via Admin → System Config)");
     this.name = "LLMNotConfiguredError";
   }
 }

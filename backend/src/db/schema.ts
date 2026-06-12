@@ -334,6 +334,17 @@ export const provisionRuns = pgTable(
   (t) => [index("provision_runs_site_idx").on(t.siteId, t.step)],
 );
 
+export const systemConfig = pgTable("system_config", {
+  key:         text("key").primaryKey(),
+  category:    text("category").notNull(),
+  value:       text("value"),
+  isSecret:    boolean("is_secret").notNull().default(true),
+  label:       text("label").notNull(),
+  description: text("description"),
+  updatedBy:   uuid("updated_by").references(() => users.id),
+  updatedAt:   timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type User = typeof users.$inferSelect;
 export type Site = typeof sites.$inferSelect;
 export type Domain = typeof domains.$inferSelect;
@@ -345,3 +356,4 @@ export type Article = typeof articles.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
 export type Alert = typeof alerts.$inferSelect;
 export type ProvisionRun = typeof provisionRuns.$inferSelect;
+export type SystemConfig = typeof systemConfig.$inferSelect;

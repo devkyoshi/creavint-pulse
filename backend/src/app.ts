@@ -10,6 +10,7 @@ import keywordRoutes from "./routes/keywords.ts";
 import analyticsRoutes from "./routes/analytics.ts";
 import adminRoutes from "./routes/admin.ts";
 import { InvalidTransitionError } from "./lib/stateMachine.ts";
+import { refreshLLMProvider } from "./integrations/llm/claude.ts";
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
@@ -46,6 +47,9 @@ export async function buildApp(): Promise<FastifyInstance> {
     },
     { prefix: "/api" },
   );
+
+  // Warm the LLM provider cache from system config (non-fatal on DB unavailability at test time)
+  await refreshLLMProvider().catch(() => {});
 
   return app;
 }

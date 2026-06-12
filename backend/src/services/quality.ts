@@ -82,7 +82,7 @@ async function criticScore(
     return { score, issues: ["LLM critic unavailable — heuristic score"], source: "heuristic", pass: score >= 60 };
   }
   const res = await llm.complete({
-    model: config.LLM_CHEAP_MODEL,
+    cheap: true,
     system:
       "You are a strict content quality reviewer for a publishing network. Score the article 0-100 on " +
       "coherence, expertise signals, value density, and absence of fabricated/unverifiable claims. " +
