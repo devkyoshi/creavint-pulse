@@ -1,16 +1,25 @@
 import type { FastifyInstance } from "fastify";
+import fs from "node:fs";
+import fsp from "node:fs/promises";
+import path from "node:path";
+import os from "node:os";
+import { randomUUID } from "node:crypto";
+import { Readable } from "node:stream";
 import bcrypt from "bcryptjs";
-import { and, desc, eq } from "drizzle-orm";
+import unzipper from "unzipper";
+import { and, count, desc, eq, getTableColumns } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db/client.ts";
-import { auditLog, domains, templates, users } from "../db/schema.ts";
+import { auditLog, domains, sites, templates, users } from "../db/schema.ts";
 import { activateKillSwitch, killSwitchActive, releaseKillSwitch } from "../jobs/queues.ts";
-import { registerTemplate } from "../services/templates.ts";
+import { lintTemplate, registerTemplate } from "../services/templates.ts";
 import { writeAudit } from "../services/audit.ts";
 import { createAlert } from "../services/alerts.ts";
 import { getAllConfig, setConfigValue } from "../services/systemConfig.ts";
 import { refreshLLMProvider } from "../integrations/llm/claude.ts";
+import { config } from "../config.ts";
 import { ROLES } from "../types.ts";
+import type { TemplateManifest } from "../types.ts";
 
 export default async function adminRoutes(app: FastifyInstance) {
   const adminOnly = { preHandler: [app.authenticate, app.requireRole("admin")] };
@@ -57,7 +66,13 @@ export default async function adminRoutes(app: FastifyInstance) {
   // --- Template registry ---
 
   app.get("/admin/templates", { preHandler: [app.authenticate] }, async () => {
-    return db.select().from(templates).orderBy(desc(templates.createdAt));
+    const rows = await db
+      .select({ ...getTableColumns(templates), sitesCount: count(sites.id) })
+      .from(templates)
+      .leftJoin(sites, eq(sites.templateId, templates.id))
+      .groupBy(templates.id)
+      .orderBy(desc(templates.createdAt));
+    return rows;
   });
 
   // Registers a template from hugo-templates/<dir>; runs lint, rejects on failure
@@ -68,6 +83,66 @@ export default async function adminRoutes(app: FastifyInstance) {
       return reply.code(201).send(template);
     } catch (e) {
       return reply.code(422).send({ error: (e as Error).message });
+    }
+  });
+
+  // Upload a Hugo template as a .zip file; extracts, lints, and registers it
+  app.post("/admin/templates/upload", adminOnly, async (req, reply) => {
+    const data = await req.file();
+    if (!data) return reply.code(400).send({ error: "No file uploaded" });
+    if (!data.filename.endsWith(".zip")) {
+      return reply.code(422).send({ error: "Only .zip files are accepted" });
+    }
+
+    const tmpDir = path.join(os.tmpdir(), `creavint-template-${randomUUID()}`);
+    await fsp.mkdir(tmpDir, { recursive: true });
+
+    try {
+      /* Extract zip */
+      const buf = await data.toBuffer();
+      await new Promise<void>((resolve, reject) => {
+        const stream = unzipper.Extract({ path: tmpDir });
+        stream.on("close", resolve);
+        stream.on("error", reject);
+        Readable.from(buf).pipe(stream);
+      });
+
+      /* Find manifest.json — may be at root or one level deep */
+      let templateRoot = tmpDir;
+      if (!fs.existsSync(path.join(tmpDir, "manifest.json"))) {
+        const entries = await fsp.readdir(tmpDir, { withFileTypes: true });
+        const subdir = entries.find((e) => e.isDirectory());
+        if (subdir && fs.existsSync(path.join(tmpDir, subdir.name, "manifest.json"))) {
+          templateRoot = path.join(tmpDir, subdir.name);
+        } else {
+          return reply.code(422).send({ error: "manifest.json not found in zip" });
+        }
+      }
+
+      const manifest = JSON.parse(
+        await fsp.readFile(path.join(templateRoot, "manifest.json"), "utf-8"),
+      ) as TemplateManifest;
+
+      /* Lint */
+      const lint = lintTemplate(templateRoot, manifest);
+      if (!lint.passed) {
+        return reply.code(422).send({
+          error: "Template failed lint checks",
+          lint,
+        });
+      }
+
+      /* Copy to hugo-templates/ */
+      const destName = `${manifest.id}`;
+      const destDir = path.join(config.hugoTemplatesPath, destName);
+      if (fs.existsSync(destDir)) await fsp.rm(destDir, { recursive: true, force: true });
+      await fsp.cp(templateRoot, destDir, { recursive: true });
+
+      /* Register in DB using existing service */
+      const template = await registerTemplate(destName, req.user!.id);
+      return reply.code(201).send({ ...template, lint });
+    } finally {
+      await fsp.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
     }
   });
 

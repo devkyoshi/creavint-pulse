@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import { ZodError } from "zod";
 import { registerAuth } from "./middleware/auth.ts";
 import authRoutes from "./routes/auth.ts";
@@ -9,6 +10,7 @@ import reviewRoutes from "./routes/review.ts";
 import keywordRoutes from "./routes/keywords.ts";
 import analyticsRoutes from "./routes/analytics.ts";
 import adminRoutes from "./routes/admin.ts";
+import articlesRoutes from "./routes/articles.ts";
 import { InvalidTransitionError } from "./lib/stateMachine.ts";
 import { refreshLLMProvider } from "./integrations/llm/claude.ts";
 
@@ -17,6 +19,7 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   await app.register(cookie);
   await app.register(cors, { origin: true, credentials: true });
+  await app.register(multipart, { limits: { fileSize: 512 * 1024, files: 1 } });
 
   registerAuth(app);
 
@@ -44,6 +47,7 @@ export async function buildApp(): Promise<FastifyInstance> {
       await api.register(keywordRoutes);
       await api.register(analyticsRoutes);
       await api.register(adminRoutes);
+      await api.register(articlesRoutes);
     },
     { prefix: "/api" },
   );
