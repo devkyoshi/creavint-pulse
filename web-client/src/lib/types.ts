@@ -255,6 +255,21 @@ export interface LintCheck {
   detail: string;
 }
 
+export interface TemplateParameter {
+  key: string;
+  label: string;
+  type: "string" | "color" | "url" | "boolean" | "number";
+  required?: boolean;
+  default?: string | boolean | number;
+}
+
+export interface ScaffoldTemplatePayload {
+  name: string;
+  displayName: string;
+  version: string;
+  parameters: TemplateParameter[];
+}
+
 export interface Template {
   id: string;
   name: string;

@@ -1,0 +1,8 @@
+{{ $client := .ctx.Site.Params.adsenseClientId }}
+{{ if $client }}
+<!-- AdSense slot: {{ .slot }} — conservative density by template default -->
+<div class="ad-slot ad-slot-{{ .slot }}">
+  <ins class="adsbygoogle" style="display:block" data-ad-client="{{ $client }}" data-ad-format="auto" data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+</div>
+{{ end }}

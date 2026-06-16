@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Default Blog — Preview</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary: #1a73e8;
+    --primary-dark: #1557b0;
+    --text: #1a1a2e;
+    --text-muted: #5f6368;
+    --text-light: #80868b;
+    --bg: #ffffff;
+    --bg-muted: #f8f9fa;
+    --border: #e8eaed;
+    --radius: 8px;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  a { color: var(--primary); text-decoration: none; }
+
+  /* ── Header ─────────────────────────────────────────────────────────── */
+  header {
+    background: var(--primary);
+    padding: 0 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    gap: 24px;
+  }
+  .site-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+    white-space: nowrap;
+  }
+  nav { display: flex; gap: 4px; }
+  nav a {
+    color: rgba(255,255,255,0.85);
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+  nav a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+  /* ── Page shell ──────────────────────────────────────────────────────── */
+  .page { max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  /* ── Niche tag pill ───────────────────────────────────────────────────── */
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--primary);
+    background: rgba(26, 115, 232, 0.08);
+    border: 1px solid rgba(26,115,232,0.18);
+    padding: 3px 9px;
+    border-radius: 99px;
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 32px;
+    align-items: center;
+    padding: 32px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .hero-content { }
+  .hero-tag { margin-bottom: 12px; }
+  .hero-title {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .hero-excerpt {
+    color: var(--text-muted);
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin-bottom: 20px;
+    max-width: 52ch;
+  }
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 9px 20px;
+    border-radius: var(--radius);
+    transition: background 0.15s;
+  }
+  .read-more:hover { background: var(--primary-dark); color: #fff; }
+  .hero-image {
+    aspect-ratio: 16 / 10;
+    background: linear-gradient(135deg, rgba(26,115,232,0.12) 0%, rgba(26,115,232,0.22) 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(26,115,232,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(26,115,232,0.4);
+    font-size: 40px;
+    overflow: hidden;
+  }
+  .hero-image svg { opacity: 0.35; }
+
+  /* ── Two-col layout ───────────────────────────────────────────────────── */
+  .layout { display: grid; grid-template-columns: 1fr 260px; gap: 40px; align-items: start; }
+
+  /* ── Section heading ─────────────────────────────────────────────────── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-head h2 {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .section-head a { font-size: 13px; color: var(--primary); }
+
+  /* ── Article grid ─────────────────────────────────────────────────────── */
+  .article-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  .article-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .article-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); transform: translateY(-2px); }
+  .card-img {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, var(--bg-muted) 0%, rgba(26,115,232,0.06) 100%);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card-img-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(26,115,232,0.12);
+  }
+  .card-body { padding: 14px 16px 16px; }
+  .card-tag { margin-bottom: 8px; }
+  .card-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .card-excerpt {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-meta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-light); }
+  .avatar {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(26,115,232,0.3), rgba(26,115,232,0.6));
+  }
+
+  /* ── Sidebar ──────────────────────────────────────────────────────────── */
+  .sidebar { display: flex; flex-direction: column; gap: 24px; }
+  .widget {
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+  }
+  .widget h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-light);
+    margin-bottom: 14px;
+  }
+  .widget-post { display: flex; gap: 12px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .widget-post:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+  .widget-thumb {
+    width: 52px; height: 40px; border-radius: 5px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--bg) 0%, rgba(26,115,232,0.08) 100%);
+    border: 1px solid var(--border);
+  }
+  .widget-post-title { font-size: 13px; font-weight: 600; line-height: 1.4; color: var(--text); }
+  .widget-post-date { font-size: 11.5px; color: var(--text-light); margin-top: 3px; }
+
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag-cloud .tag { cursor: pointer; transition: background 0.15s; }
+  .tag-cloud .tag:hover { background: rgba(26,115,232,0.14); }
+
+  /* ── Newsletter widget ────────────────────────────────────────────────── */
+  .newsletter {
+    background: linear-gradient(135deg, rgba(26,115,232,0.07) 0%, rgba(26,115,232,0.13) 100%);
+    border: 1px solid rgba(26,115,232,0.2);
+    border-radius: var(--radius);
+    padding: 18px;
+    text-align: center;
+  }
+  .newsletter h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .newsletter p { font-size: 12.5px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.5; }
+  .newsletter input {
+    width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 13px; margin-bottom: 8px; background: var(--bg);
+    font-family: inherit;
+  }
+  .newsletter button {
+    width: 100%; padding: 9px; background: var(--primary); color: #fff; border: none;
+    border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .newsletter button:hover { background: var(--primary-dark); }
+
+  /* ── Footer ───────────────────────────────────────────────────────────── */
+  footer {
+    background: #1a1a2e;
+    color: rgba(255,255,255,0.65);
+    margin-top: 56px;
+  }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 36px 24px 24px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 32px;
+  }
+  .footer-brand .site-name { font-size: 17px; color: #fff; margin-bottom: 8px; }
+  .footer-brand p { font-size: 13px; line-height: 1.6; max-width: 30ch; }
+  footer h4 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: rgba(255,255,255,0.35); margin-bottom: 12px; }
+  footer ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+  footer ul li a { color: rgba(255,255,255,0.65); font-size: 13.5px; transition: color 0.15s; }
+  footer ul li a:hover { color: #fff; }
+  .footer-bottom {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12.5px;
+  }
+  .footer-bottom a { color: rgba(255,255,255,0.5); }
+  .footer-bottom a:hover { color: rgba(255,255,255,0.85); }
+
+  @media (max-width: 780px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-image { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    .article-grid { grid-template-columns: 1fr; }
+    .footer-inner { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="site-name">My Blog</span>
+    <nav>
+      <a href="#">Home</a>
+      <a href="#">Articles</a>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-tag"><span class="tag">Featured</span></div>
+      <h1 class="hero-title">How to Build a Scalable Content Strategy That Drives Organic Traffic</h1>
+      <p class="hero-excerpt">
+        Discover proven techniques for researching high-value keywords, structuring articles for SEO performance,
+        and maintaining a publishing cadence that search engines reward.
+      </p>
+      <a class="read-more" href="#">
+        Read article
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="hero-image">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    </div>
+  </section>
+
+  <!-- Main layout -->
+  <div class="layout">
+    <main>
+      <div class="section-head">
+        <h2>Latest Articles</h2>
+        <a href="#">View all →</a>
+      </div>
+
+      <div class="article-grid">
+        <!-- Card 1 -->
+        <article class="article-card">
+          <div class="card-img"><div class="card-img-placeholder"></div></div>
+          <div class="card-body">
+            <div class="card-tag"><span class="tag">SEO</span></div>
+            <h3 class="card-title">10 On-Page SEO Techniques That Still Work in 2025</h3>
+            <p class="card-excerpt">From title tag optimization to internal linking strategies, these fundamentals continue to move the needle.</p>
+            <div class="card-meta">
+              <div class="avatar"></div>
+              <span>Jane Smith</span>
+              <span>·</span>
+              <span>5 min read</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2 -->
+        <article class="article-card">
+          <div class="card-img"><div class="card-img-placeholder"></div></div>
+          <div class="card-body">
+            <div class="card-tag"><span class="tag">Content</span></div>
+            <h3 class="card-title">Writing for Both Readers and Search Engines Without Compromise</h3>
+            <p class="card-excerpt">How to strike the perfect balance between engaging prose and keyword-rich structure.</p>
+            <div class="card-meta">
+              <div class="avatar"></div>
+              <span>Mark Lee</span>
+              <span>·</span>
+              <span>7 min read</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3 -->
+        <article class="article-card">
+          <div class="card-img"><div class="card-img-placeholder"></div></div>
+          <div class="card-body">
+            <div class="card-tag"><span class="tag">Analytics</span></div>
+            <h3 class="card-title">Understanding Core Web Vitals and Their Impact on Rankings</h3>
+            <p class="card-excerpt">LCP, CLS, INP — what they measure, why Google cares, and how to improve each score.</p>
+            <div class="card-meta">
+              <div class="avatar"></div>
+              <span>Sara Kim</span>
+              <span>·</span>
+              <span>6 min read</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 4 -->
+        <article class="article-card">
+          <div class="card-img"><div class="card-img-placeholder"></div></div>
+          <div class="card-body">
+            <div class="card-tag"><span class="tag">Monetization</span></div>
+            <h3 class="card-title">AdSense Approval Checklist: 20 Articles, Trust Pages, and CWV</h3>
+            <p class="card-excerpt">Everything you need before submitting your site for AdSense review — and common rejection reasons to avoid.</p>
+            <div class="card-meta">
+              <div class="avatar"></div>
+              <span>Alex Chen</span>
+              <span>·</span>
+              <span>8 min read</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <!-- Newsletter -->
+      <div class="newsletter">
+        <h3>Stay in the loop</h3>
+        <p>Weekly articles on SEO, content strategy, and monetization.</p>
+        <input type="email" placeholder="your@email.com" />
+        <button>Subscribe →</button>
+      </div>
+
+      <!-- Popular posts -->
+      <div class="widget">
+        <h3>Popular</h3>
+        <div class="widget-post">
+          <div class="widget-thumb"></div>
+          <div>
+            <div class="widget-post-title">The Long-Tail Keyword Guide for 2025</div>
+            <div class="widget-post-date">Jun 8 · 5 min</div>
+          </div>
+        </div>
+        <div class="widget-post">
+          <div class="widget-thumb"></div>
+          <div>
+            <div class="widget-post-title">Topical Authority: How to Dominate Your Niche</div>
+            <div class="widget-post-date">Jun 2 · 9 min</div>
+          </div>
+        </div>
+        <div class="widget-post">
+          <div class="widget-thumb"></div>
+          <div>
+            <div class="widget-post-title">E-E-A-T Signals That Actually Affect Rankings</div>
+            <div class="widget-post-date">May 26 · 6 min</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="widget">
+        <h3>Topics</h3>
+        <div class="tag-cloud">
+          <span class="tag">SEO</span>
+          <span class="tag">Content</span>
+          <span class="tag">Analytics</span>
+          <span class="tag">AdSense</span>
+          <span class="tag">Keywords</span>
+          <span class="tag">Technical SEO</span>
+          <span class="tag">Link Building</span>
+          <span class="tag">CRO</span>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="site-name">My Blog</div>
+      <p>In-depth articles on SEO, content marketing, and building profitable web properties.</p>
+    </div>
+    <div>
+      <h4>Navigation</h4>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Articles</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <ul>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Editorial Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 My Blog. All rights reserved.</span>
+    <div style="display:flex;gap:16px">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+{
+  "id": "test-blog-v2",
+  "name": "Test Blog V2",
+  "version": "1.0.0",
+  "parameters": [
+    {
+      "key": "primaryColor",
+      "label": "Primary color",
+      "type": "color",
+      "required": false,
+      "default": "#1ce933"
+    },
+    {
+      "key": "logoUrl",
+      "label": "Logo URL",
+      "type": "url",
+      "required": false,
+      "default": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSk3WWIFj6gDAjVDor96zdFxjZfjfrUbVOez_sT0oHZMw&s=10"
+    },
+    {
+      "key": "description",
+      "label": "Site tagline",
+      "type": "string",
+      "required": true,
+      "default": "test description"
+    },
+    {
+      "key": "showAuthorBox",
+      "label": "Show author box on articles",
+      "type": "boolean",
+      "required": false,
+      "default": true
+    }
+  ],
+  "requiredPages": [
+    "about",
+    "contact",
+    "privacy",
+    "terms",
+    "editorial-policy",
+    "author"
+  ]
+}

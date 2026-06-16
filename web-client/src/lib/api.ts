@@ -11,6 +11,7 @@ import type {
   NetworkAnalytics,
   ReviewQueueItem,
   SaveDraftResponse,
+  ScaffoldTemplatePayload,
   SiteDetail,
   SiteEconomicsDaily,
   SiteListRow,
@@ -116,6 +117,7 @@ export const api = {
     templates: () => get<Template[]>("/admin/templates"),
     registerTemplate: (templateDir: string) => post<Template>("/admin/templates", { templateDir }),
     uploadTemplate: (form: FormData) => uploadForm<Template>("POST", "/admin/templates/upload", form),
+    scaffoldTemplate: (payload: ScaffoldTemplatePayload) => post<Template>("/admin/templates/scaffold", payload),
     domains: () => get<Domain[]>("/admin/domains"),
     addDomain: (payload: { fqdn: string; registrar?: string; isAged?: boolean }) =>
       post<Domain>("/admin/domains", payload),

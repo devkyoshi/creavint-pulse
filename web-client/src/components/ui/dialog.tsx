@@ -10,14 +10,16 @@ interface DialogProps {
   description?: string;
   children: ReactNode;
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
 }
 
 const sizes: Record<NonNullable<DialogProps["size"]>, string> = {
-  sm: "w-full max-w-md",
-  md: "w-full max-w-lg",
-  lg: "w-full max-w-2xl",
-  xl: "w-full max-w-3xl",
+  sm:    "w-full max-w-md",
+  md:    "w-full max-w-lg",
+  lg:    "w-full max-w-2xl",
+  xl:    "w-full max-w-3xl",
+  "2xl": "w-full max-w-5xl",
+  full:  "w-full max-w-[92vw]",
 };
 
 export function Dialog({ open, onClose, title, description, children, className, size = "md" }: DialogProps) {
@@ -41,13 +43,38 @@ export function Dialog({ open, onClose, title, description, children, className,
   return createPortal(
     <dialog
       ref={ref}
-      className="fixed inset-0 m-auto p-0 rounded-[--radius-lg] bg-surface border border-border shadow-2xl"
-      style={{ zIndex: "var(--z-modal)" }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      /* Full-screen transparent layer — DO NOT set display:flex here.
+         The browser hides the dialog via UA `display:none` on el.close();
+         overriding display prevents that and the dialog stays visible. */
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100vh",
+        maxWidth: "100vw",
+        maxHeight: "100vh",
+        background: "transparent",
+        border: "none",
+        outline: "none",
+        padding: 0,
+        margin: 0,
+        zIndex: "var(--z-modal)" as React.CSSProperties["zIndex"],
+      }}
     >
-      <div className={cn(sizes[size], className)}>
+      {/* Centering wrapper — click-outside closes the dialog */}
+      <div
+        className="flex items-center justify-center w-full h-full"
+        onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      >
+      <div
+        className={cn(
+          "rounded-[--radius-lg] bg-surface border border-border shadow-2xl max-h-[90vh] flex flex-col overflow-hidden",
+          sizes[size],
+          className,
+        )}
+      >
         {title && (
-          <div className="flex items-start justify-between border-b border-border-subtle px-6 py-4 gap-4">
+          <div className="flex items-start justify-between border-b border-border-subtle px-6 py-4 gap-4 shrink-0">
             <div>
               <h2 className="text-[15px] font-semibold text-text-primary leading-snug">{title}</h2>
               {description && (
@@ -63,7 +90,8 @@ export function Dialog({ open, onClose, title, description, children, className,
             </button>
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div className="p-6 overflow-y-auto">{children}</div>
+      </div>
       </div>
     </dialog>,
     document.body,

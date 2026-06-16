@@ -9,6 +9,7 @@ import { DashboardPage } from "@/pages/dashboard";
 import { AlertsPage } from "@/pages/alerts";
 import { KeywordsPage } from "@/pages/keywords";
 import { TemplatesPage } from "@/pages/templates";
+import { TemplateNewPage } from "@/pages/templates/template-new";
 import { AdminPage } from "@/pages/admin/admin";
 import { SitesListPage } from "@/pages/sites/sites-list";
 import { SiteNewPage } from "@/pages/sites/site-new";
@@ -55,6 +56,7 @@ export function App() {
                 <Route path="keywords" element={<KeywordsPage />} />
                 <Route path="alerts" element={<AlertsPage />} />
                 <Route path="templates" element={<TemplatesPage />} />
+                <Route path="templates/new" element={<TemplateNewPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>
